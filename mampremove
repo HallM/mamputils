@@ -1,0 +1,23 @@
+#!/bin/bash
+
+MAMPPATH="`dirname \"$0\"`"
+MAMPPATH="`dirname $MAMPPATH`"
+APACHEPATH="$MAMPPATH/apache2"
+SUBDIRAVAILABLE="$APACHEPATH/subdir-available"
+SUBDIRENABLED="$APACHEPATH/subdir-enabled"
+
+if [ -n "$1" ]; then
+  if [ -e "$SUBDIRENABLED/$1.conf" ]; then
+    rm "$SUBDIRENABLED/$1.conf"
+  fi
+  if [ -e "$SUBDIRAVAILABLE/$1.conf" ]; then
+    rm "$SUBDIRAVAILABLE/$1.conf"
+  fi
+
+  echo "$1 is now removed"
+  $APACHEPATH/bin/apachectl graceful
+  echo "restarting apache (graceful)"
+else
+  echo "Usage: mampremove appname"
+  echo "appname - will remove the appname from subdir-enabled and subdir-available"
+fi

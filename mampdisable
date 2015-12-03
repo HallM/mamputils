@@ -1,0 +1,21 @@
+#!/bin/bash
+
+MAMPPATH="`dirname \"$0\"`"
+MAMPPATH="`dirname $MAMPPATH`"
+APACHEPATH="$MAMPPATH/apache2"
+SUBDIRENABLED="$APACHEPATH/subdir-enabled"
+
+if [ -n "$1" ]; then
+  if [ -e "$SUBDIRENABLED/$1.conf" ]; then
+    rm "$SUBDIRENABLED/$1.conf"
+    echo "$1 is now disabled"
+  else
+    echo "$1 is already disabled"
+  fi
+
+  $APACHEPATH/bin/apachectl graceful
+  echo "restarting apache (graceful)"
+else
+  echo "Usage: mampdisable appname"
+  echo "appname - will remove the appname from subdir-enabled"
+fi

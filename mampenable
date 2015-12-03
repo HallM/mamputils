@@ -1,0 +1,40 @@
+#!/bin/bash
+
+MAMPPATH="`dirname \"$0\"`"
+MAMPPATH="`dirname $MAMPPATH`"
+APACHEPATH="$MAMPPATH/apache2"
+SUBDIRAVAILABLE="$APACHEPATH/subdir-available"
+SUBDIRENABLED="$APACHEPATH/subdir-enabled"
+
+CURDIR=`pwd`
+
+if [ -n "$1" ]; then
+  if [ -e "$SUBDIRENABLED/$1.conf" ]; then
+    echo "$1 is already enabled"
+    exit 0
+  fi
+
+  if [ ! -e "$SUBDIRAVAILABLE/$1.conf" ]; then
+    cat << EOCNFILE > $SUBDIRAVAILABLE/$1.conf
+Alias /$1/ "$CURDIR/"
+Alias /$1 "$CURDIR"
+
+<Directory "$CURDIR">
+    Options FollowSymLinks
+    AllowOverride All
+    Require all granted
+</Directory>
+EOCNFILE
+
+    echo "Created config file for $SUBDIRAVAILABLE/$1.conf"
+  fi
+
+  ln -s "$SUBDIRAVAILABLE/$1.conf" "$SUBDIRENABLED/$1.conf"
+  echo "$1 is now enabled"
+  $APACHEPATH/bin/apachectl graceful
+  echo "restarting apache (graceful)"
+else
+  echo "Usage: mampenable appname"
+  echo "appname - will create an alias for /appname/ in mampstack"
+  echo "The current directory you are in is used for the app"
+fi
